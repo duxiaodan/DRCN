@@ -103,3 +103,4 @@ ENV/
 # For this project
 *.png
 *.pth
+dataset/
