@@ -14,8 +14,8 @@ from rec_image import rec_image
 
 source_dataset_name = 'SVHN'
 target_dataset_name = 'mnist'
-source_dataset = os.path.join('.', 'dataset', 'svhn')
-target_dataset = os.path.join('.', 'dataset', 'mnist')
+source_dataset = os.path.join(os.sep, 'scratch', 'xdu', 'datasets', 'svhn')
+target_dataset = os.path.join(os.sep, 'scratch', 'xdu', 'datasets', 'mnist')
 model_root = 'models'   # directory to save trained models
 cuda = True
 cudnn.benchmark = True
@@ -29,8 +29,8 @@ m_lambda = 0.7
 
 def weights_init(m):
     if isinstance(m, nn.Conv2d):
-        nn.init.xavier_uniform(m.weight.data, gain=1)
-        nn.init.constant(m.bias.data, 0.1)
+        nn.init.xavier_uniform_(m.weight.data, gain=1)
+        nn.init.constant_(m.bias.data, 0.1)
 
 manual_seed = random.randint(1, 10000)
 random.seed(manual_seed)
@@ -50,6 +50,7 @@ img_transform_mnist = transforms.Compose([
 ])
 
 dataset_source = datasets.SVHN(
+    download=True,
     root=source_dataset,
     split='train',
     transform=img_transform_svhn,
@@ -63,6 +64,7 @@ datasetloader_source = torch.utils.data.DataLoader(
 )
 
 dataset_target = datasets.MNIST(
+    download=True,
     root=target_dataset,
     train=True,
     transform=img_transform_mnist,
@@ -104,7 +106,7 @@ len_source = len(datasetloader_source)
 len_target = len(datasetloader_target)
 
 # training
-for epoch in xrange(n_epoch):
+for epoch in range(n_epoch):
 
     # train reconstruction
     dataset_target_iter = iter(datasetloader_target)
@@ -133,14 +135,15 @@ for epoch in xrange(n_epoch):
 
         rec_img = rec_img.view(-1, 1 * image_size * image_size)
         inputv_img_img = inputv_img.contiguous().view(-1, 1 * image_size * image_size)
-        err_rec = (1 - m_lambda) * loss_rec(rec_img, inputv_img)
+        # print(rec_img.shape,inputv_img.shape)
+        err_rec = (1 - m_lambda) * loss_rec(rec_img, inputv_img_img)
         err_rec.backward()
         optimizer_rec.step()
 
         i += 1
 
-    print 'epoch: %d, err_rec %f' \
-          % (epoch, err_rec.cpu().data.numpy())
+    print('epoch: %d, err_rec %f' \
+          % (epoch, err_rec.cpu().data.numpy()))
 
     # training label classifier
 
@@ -177,12 +180,12 @@ for epoch in xrange(n_epoch):
 
         i += 1
 
-    print 'epoch: %d, err_class: %f' \
-          % (epoch, err_class.cpu().data.numpy())
+    print('epoch: %d, err_class: %f' \
+          % (epoch, err_class.cpu().data.numpy()))
 
     torch.save(my_net, '{0}/svhn_mnist_model_epoch_{1}.pth'.format(model_root, epoch))
 
     rec_image(epoch)
     test(epoch)
 
-print 'done'
+print('done')

@@ -10,7 +10,7 @@ from torchvision import datasets
 def rec_image(epoch):
 
     model_root = 'models'
-    image_root = os.path.join('dataset', 'svhn')
+    image_root = os.path.join(os.sep, 'scratch', 'xdu', 'datasets', 'svhn')
 
     cuda = True
     cudnn.benchmark = True
@@ -24,6 +24,7 @@ def rec_image(epoch):
     ])
 
     dataset = datasets.SVHN(
+        download=True,
         root=image_root,
         split='test',
         transform=img_transfrom

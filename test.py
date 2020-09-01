@@ -9,7 +9,7 @@ from torchvision import datasets
 def test(epoch):
 
     model_root = 'models'
-    image_root = os.path.join('dataset', 'mnist')
+    image_root = os.path.join(os.sep, 'scratch', 'xdu', 'datasets', 'mnist')
 
     cuda = True
     cudnn.benchmark = True
@@ -23,6 +23,7 @@ def test(epoch):
     ])
 
     dataset = datasets.MNIST(
+        download=True,
         root=image_root,
         train=False,
         transform=img_transform
@@ -81,4 +82,4 @@ def test(epoch):
 
     accu = n_correct * 1.0 / n_total
 
-    print 'epoch: %d, accuracy: %f' %(epoch, accu)
+    print('epoch: %d, accuracy: %f' %(epoch, accu))
